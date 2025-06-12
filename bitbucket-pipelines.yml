@@ -1,0 +1,51 @@
+pipelines:
+  branches:
+    master:
+      - step:
+          name: Install Dependencies
+          image: php:8.2
+          script:
+            - echo " ***** Início do pipeline ***** "
+            - apt-get update && apt-get install -y unzip git zip libzip-dev libpng-dev libonig-dev libxml2-dev wget
+            - echo "Instalando extensões PHP"
+            - apt-get update && apt-get install -y unzip git zip libzip-dev libpng-dev libonig-dev libxml2-dev wget libjpeg62-turbo-dev libfreetype6-dev
+            - docker-php-ext-configure gd --with-freetype --with-jpeg
+            - docker-php-ext-install pdo pdo_mysql mbstring zip xml gd || { echo "Erro ao instalar extensões PHP"; exit 1; }
+            - echo "Criando diretórios necessários para o Laravel"
+            - mkdir -p storage/framework/{cache,sessions,views}
+            - echo "Baixando checksum esperado do Composer"
+            - php -r "if (hash_file('sha384', 'composer-setup.php') === '$(wget -q -O - https://composer.github.io/installer.sig)') { echo 'Installer está íntegro.'; } else { echo 'Erro; installer corrompido'; unlink('composer-setup.php'); exit(1); }"
+            - php composer-setup.php --install-dir=/usr/bin --filename=composer || { echo "Erro ao instalar o Composer"; exit 1; }
+            - composer --version || { echo "Composer não encontrado"; exit 1; }
+            - echo "Criando a pasta test-results"
+            - mkdir -p test-results || { echo "Erro ao criar pasta test-results"; exit 1; } # Criação do diretório
+            - ls -la
+            - cat composer.json
+            - echo "Executando composer install"
+            - composer install || { echo "Composer install falhou"; exit 1; }
+            - echo "Instalação finalizada"
+            - ls -la vendor/bin
+            - echo "Rodando migrations do Laravel"
+            - php artisan migrate --seed --force --env=testing || { echo "Erro no artisan migrate"; exit 1; }
+            - if [ ! -d "tests/Unit" ]; then
+            - echo "Pasta tests/Unit não encontrada. Criando..."
+            - mkdir -p tests/Unit || { echo "Erro ao criar a pasta tests/Unit"; exit 1; }
+            - else
+            - echo "Pasta tests/Unit já existe."
+            - fi
+            - if [ ! -d "tests/Feature" ]; then
+            - echo "Pasta tests/Feature não encontrada. Criando..."
+            - mkdir -p tests/Feature || { echo "Erro ao criar a pasta tests/Feature"; exit 1; }
+            - else
+            - echo "Pasta tests/Feature já existe."
+            - fi
+            - echo "Rodando testes com PHPUnit..."
+            - vendor/bin/phpunit --log-junit test-results/phpunit-report.xml || { echo "Erro durante os testes"; exit 1; }
+            - echo "Testes finalizados. Verificando arquivos no test-results:"
+            - ls -la test-results # Verifique o conteúdo do diretório test-results
+            - echo "Verificando phpunit-report.xml:"
+            - cat test-results/phpunit-report.xml || echo "Arquivo phpunit-report.xml não encontrado ou está vazio"
+            - echo "Testando o banco de dados"
+            - php artisan db:show --env=testing || { echo "Erro ao conectar no banco de dados"; exit 1; }
+          artifacts:
+            - test-results/**

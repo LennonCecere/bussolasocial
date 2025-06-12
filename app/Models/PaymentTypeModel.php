@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class PaymentTypeModel extends Model
+{
+    use SoftDeletes;
+
+    protected $table = 'payment_type';
+    protected $guarded = [];
+    protected $dates = ['created_at','updated_at', 'deleted_at'];
+    public $timestamps = true;
+    protected $fillable = ['name', 'description'];
+
+    /**
+     * @return HasMany
+     */
+    public function order(): HasMany
+    {
+        return $this->hasMany(OrderModel::class, 'payment_type_id', 'id');
+    }
+}
