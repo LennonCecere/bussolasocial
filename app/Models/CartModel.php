@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CartModel extends Model
 {
+    use hasFactory;
+
     protected $table = 'cart';
     protected $guarded = [];
     protected $dates = ['created_at','updated_at'];

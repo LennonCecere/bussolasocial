@@ -14,21 +14,6 @@
             <directory suffix="Test.php">./tests/Http/Controllers</directory>
         </testsuite>
     </testsuites>
-    <coverage>
-        <include>
-            <directory suffix=".php">./app/Http/Controllers</directory>
-            <!-- Removido temporariamente porque no momento o PHPUnit não
-                 consegue lidar com os "métodos mágicos" do Eloquent
-                 então o teste não consegue validar uma relation belongsTo/hasMany -->
-<!--            <directory suffix="Model.php">./app/Models</directory>-->
-        </include>
-        <exclude>
-            <directory suffix=".php">./app/Http/Controllers/Admin</directory>
-            <directory suffix=".php">./app/Http/Controllers/Auth</directory>
-            <directory suffix=".php">./app/Http/Controllers/feddback</directory>
-            <directory suffix=".php">./app/Http/Controllers/Reports</directory>
-        </exclude>
-    </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="DB_DATABASE" value=":memory:"/>

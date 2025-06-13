@@ -19,11 +19,22 @@ class PaymentTypeService
 
     /**
      * @param array $request
-     * @return mixed
+     * @return JsonResponse
      */
-    public function save(array $request): mixed
+    public function save(array $request): JsonResponse
     {
-        return PaymentTypeModel::create($request);
+        try {
+            $paymentType = PaymentTypeModel::create($request);
+            return new JsonResponse([
+                'erro' => false,
+                'data' => $paymentType
+            ], 201);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'erro' => true,
+                'message' => 'Erro ao criar tipo de pagamento.'
+            ], 500);
+        }
     }
 
     /**
@@ -39,7 +50,7 @@ class PaymentTypeService
 
             return $payment;
         } catch (ModelNotFoundException $e) {
-            return response()->json([
+            return new JsonResponse([
                 'error' => true,
                 'message' => 'Tipo de pagamento não encontrado.',
             ], 404);
@@ -56,21 +67,21 @@ class PaymentTypeService
             $paymentType = PaymentTypeModel::withTrashed()->findOrFail($id);
 
             if ($paymentType->deleted_at !== null) {
-                return response()->json([
-                    'success' => true,
+                return new JsonResponse([
+                    'erro' => false,
                     'message' => 'Tipo de pagamento já está excluído.',
                 ], 200);
             }
 
             $paymentType->delete();
 
-            return response()->json([
-                'success' => true,
+            return new JsonResponse([
+                'erro' => false,
                 'message' => 'Tipo de pagamento excluído com sucesso.',
             ], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
+            return new JsonResponse([
+                'erro' => true,
                 'message' => 'Tipo de pagamento não encontrado.',
             ], 404);
         }
@@ -86,21 +97,21 @@ class PaymentTypeService
             $paymentType = PaymentTypeModel::withTrashed()->findOrFail($id);
 
             if ($paymentType->deleted_at === null) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Tipo de pagamento já está ativo.',
+                return new JsonResponse([
+                    'erro' => false,
+                    'message' => 'O tipo de pagamento já está ativo.',
                 ], 200);
             }
 
             $paymentType->restore();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Tipo de pagamento ativo com sucesso.',
+            return new JsonResponse([
+                'erro' => false,
+                'message' => 'Tipo de pagamento ativado com sucesso.',
             ], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
+            return new JsonResponse([
+                'erro' => true,
                 'message' => 'Tipo de pagamento não encontrado.',
             ], 404);
         }

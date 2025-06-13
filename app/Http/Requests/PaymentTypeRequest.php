@@ -27,6 +27,7 @@ class PaymentTypeRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
+            'installments' => 'required|integer',
         ];
     }
 
@@ -44,6 +45,9 @@ class PaymentTypeRequest extends FormRequest
 
             'description.string' => 'O campo descrição deve ser uma string.',
             'description.max' => 'O campo descrição não pode exceder 255 caracteres.',
+
+            'installments.required' => 'O campo parcelas é obrigatório.',
+            'installments.integer' => 'O campo parcelas deve ser um numero inteiro.',
         ];
     }
 
@@ -55,7 +59,7 @@ class PaymentTypeRequest extends FormRequest
     {
         // Lançar uma exceção com a resposta JSON personalizada
         throw new HttpResponseException(response()->json([
-            'success' => false,
+            'erro' => true,
             'message' => 'Erro de validação.',
             'errors' => $validator->errors(), // Retorna os erros da validação
         ], 422)); // Código HTTP para Unprocessable Entity

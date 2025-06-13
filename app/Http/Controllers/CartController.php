@@ -29,23 +29,23 @@ class CartController extends Controller
     {
         $response = $this->cart->find();
 
-        return response()->json($response);
+        return new JsonResponse($response, 200);
     }
 
     /**
      * @param CartRequest $request
-     * @return mixed
+     * @return JsonResponse
      */
-    public function store(CartRequest $request): mixed
+    public function store(CartRequest $request): JsonResponse
     {
         return $this->cart->addProduct($request);
     }
 
     /**
      * @param CartRequest $request
-     * @return mixed
+     * @return JsonResponse
      */
-    public function update(CartRequest $request): mixed
+    public function update(CartRequest $request): JsonResponse
     {
         return $this->cart->updateProduct($request);
     }

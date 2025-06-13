@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\CartModel;
 use App\Models\PaymentTypeModel;
+use Exception;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -19,18 +20,15 @@ class CartCheckoutRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @throws Exception
+     */
     public function prepareForValidation(): void
     {
         $cart = CartModel::all();
 
         if ($cart->isEmpty()) {
-            throw new HttpResponseException(
-                response()->json([
-                    'success' => false,
-                    'message' => 'Não é possível fazer checkout com o carrinho vazio.',
-                    'errors' => [],
-                ], 422)
-            );
+            throw new Exception('Não é possível fazer checkout com o carrinho vazio.');
         }
     }
 

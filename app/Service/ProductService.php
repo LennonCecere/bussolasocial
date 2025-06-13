@@ -23,7 +23,18 @@ class ProductService
      */
     public function save(array $request): mixed
     {
-        return ProductModel::create($request);
+        try {
+            $product = ProductModel::create($request);
+            return new JsonResponse([
+                'erro' => false,
+                'data' => $product
+            ], 201);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'erro' => true,
+                'message' => 'Erro ao criar tipo de pagamento.'
+            ], 500);
+        }
     }
 
     /**
@@ -39,7 +50,7 @@ class ProductService
 
             return $payment;
         } catch (ModelNotFoundException $e) {
-            return response()->json([
+            return new JsonResponse([
                 'error' => true,
                 'message' => 'Produto não encontrado.',
             ], 404);
@@ -56,21 +67,21 @@ class ProductService
             $paymentType = ProductModel::withTrashed()->findOrFail($id);
 
             if ($paymentType->deleted_at !== null) {
-                return response()->json([
-                    'success' => true,
+                return new JsonResponse([
+                    'erro' => false,
                     'message' => 'Produto já está excluído.',
                 ], 200);
             }
 
             $paymentType->delete();
 
-            return response()->json([
-                'success' => true,
+            return new JsonResponse([
+                'erro' => false,
                 'message' => 'Produto excluído com sucesso.',
             ], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
+            return new JsonResponse([
+                'erro' => true,
                 'message' => 'Produto não encontrado.',
             ], 404);
         }
@@ -86,21 +97,21 @@ class ProductService
             $paymentType = ProductModel::withTrashed()->findOrFail($id);
 
             if ($paymentType->deleted_at === null) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Produto já está ativo.',
+                return new JsonResponse([
+                    'erro' => false,
+                    'message' => 'O produto já está ativo.',
                 ], 200);
             }
 
             $paymentType->restore();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Produto ativo com sucesso.',
+            return new JsonResponse([
+                'erro' => false,
+                'message' => 'Produto ativado com sucesso.',
             ], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
+            return new JsonResponse([
+                'erro' => true,
                 'message' => 'Produto não encontrado.',
             ], 404);
         }
